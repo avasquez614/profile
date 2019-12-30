@@ -1,8 +1,26 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.craftercms.security.processors.impl;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
@@ -29,13 +47,14 @@ import org.springframework.beans.factory.annotation.Required;
  *
  * @author avasquez
  */
-public class MellonAutoLoginProcessor implements RequestSecurityProcessor {
+public class AuthenticationHeadersLoginProcessor implements RequestSecurityProcessor {
 
-    public static final Logger logger = LoggerFactory.getLogger(MellonAutoLoginProcessor.class);
+    public static final Logger logger = LoggerFactory.getLogger(AuthenticationHeadersLoginProcessor.class);
 
     public static final String DEFAULT_MELLON_HEADER_PREFIX = "MELLON_";
     public static final String DEFAULT_USERNAME_HEADER_NAME = DEFAULT_MELLON_HEADER_PREFIX + "username";
     public static final String DEFAULT_EMAIL_HEADER_NAME = DEFAULT_MELLON_HEADER_PREFIX + "email";
+    public static final String DEFAULT_TOKEN_HEADER_NAME = DEFAULT_MELLON_HEADER_PREFIX + "secure_key";
 
     protected TenantService tenantService;
     protected ProfileService profileService;
@@ -44,11 +63,14 @@ public class MellonAutoLoginProcessor implements RequestSecurityProcessor {
     protected String mellonHeaderPrefix;
     protected String usernameHeaderName;
     protected String emailHeaderName;
+    protected String tokenHeaderName;
+    protected String tokenExpectedValue;
 
-    public MellonAutoLoginProcessor() {
+    public AuthenticationHeadersLoginProcessor() {
         mellonHeaderPrefix = DEFAULT_MELLON_HEADER_PREFIX;
         usernameHeaderName = DEFAULT_USERNAME_HEADER_NAME;
         emailHeaderName = DEFAULT_EMAIL_HEADER_NAME;
+        tokenHeaderName = DEFAULT_TOKEN_HEADER_NAME;
     }
 
     @Required
@@ -83,13 +105,27 @@ public class MellonAutoLoginProcessor implements RequestSecurityProcessor {
         this.emailHeaderName = emailHeaderName;
     }
 
+    public void setTokenHeaderName(final String tokenHeaderName) {
+        this.tokenHeaderName = tokenHeaderName;
+    }
+
+    public void setTokenExpectedValue(final String tokenExpectedValue) {
+        this.tokenExpectedValue = tokenExpectedValue;
+    }
+
+    public String getTokenExpectedValue() {
+        return tokenExpectedValue;
+    }
+
     @Override
     public void processRequest(RequestContext context, RequestSecurityProcessorChain processorChain) throws Exception {
         HttpServletRequest request = context.getRequest();
+
         String username = request.getHeader(usernameHeaderName);
         Authentication auth = SecurityUtils.getAuthentication(request);
 
-        if (StringUtils.isNotEmpty(username) && (auth == null || !auth.getProfile().getUsername().equals(username))) {
+        if (StringUtils.isNotEmpty(username) &&
+            (Objects.isNull(auth) || !auth.getProfile().getUsername().equals(username))  && hasValidToken(request)) {
             String[] tenantNames = tenantsResolver.getTenants();
             Tenant tenant = getSsoEnabledTenant(tenantNames);
 
@@ -101,11 +137,22 @@ public class MellonAutoLoginProcessor implements RequestSecurityProcessor {
 
                 SecurityUtils.setAuthentication(request, authenticationManager.authenticateUser(profile));
             } else {
-                logger.warn("An SSO login was attempted, but none of the tenants [{}] is enabled for SSO", tenantNames);
+                logger.warn("An SSO login was attempted, but none of the tenants [{}] is enabled for SSO",
+                    tenantNames);
             }
         }
 
         processorChain.processRequest(context);
+    }
+
+    protected boolean hasValidToken(HttpServletRequest request) {
+        String tokenHeaderValue = request.getHeader(tokenHeaderName);
+        if (StringUtils.equals(tokenHeaderValue, getTokenExpectedValue())) {
+            return true;
+        } else {
+            logger.warn("Token mismatch during authentication from '{}'", request.getRemoteAddr());
+            return false;
+        }
     }
 
     protected Tenant getSsoEnabledTenant(String[] tenantNames) throws ProfileException {

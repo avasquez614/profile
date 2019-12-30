@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
@@ -189,6 +206,7 @@
         <property name="tenantRepository" ref="crafter.tenantRepository"/>
         <property name="profileRepository" ref="crafter.profileRepository"/>
         <property name="profileService" ref="crafter.profileService"/>
+        <property name="entitlementValidator" ref="crafter.entitlementValidator"/>
     </bean>
 
     <bean id="crafter.profileService" class="org.craftercms.profile.services.impl.ProfileServiceImpl">
@@ -205,6 +223,7 @@
         <property name="resetPwdEmailSubject" value="${crafter.profile.verification.resetPassword.mail.subject}"/>
         <property name="resetPwdEmailTemplateName" value="${crafter.profile.verification.resetPassword.mail.templateName}"/>
         <property name="validAttachmentMimeTypes" value="${crafter.profile.attachments.validMimeTypes}"/>
+        <property name="entitlementValidator" ref="crafter.entitlementValidator"/>
     </bean>
 
     <bean id="crafter.authenticationService" class="org.craftercms.profile.services.impl.AuthenticationServiceImpl">
@@ -291,6 +310,13 @@
         <property name="maxInMemorySize" value="${crafter.profile.attachments.maxSizeMem}"/>
     </bean>
 
+    <!-- Entitlements -->
+    <bean id="crafter.entitlementsProvider" class="org.craftercms.profile.entitlement.ProfileLicenseUsageProvider">
+        <property name="tenantRepository" ref="crafter.tenantRepository"/>
+        <property name="profileRepository" ref="crafter.profileRepository"/>
+    </bean>
+
     <import resource="classpath*:crafter/profile/extension/services-context.xml"/>
+    <import resource="classpath:crafter/entitlements/entitlements-context.xml"/>
 
 </beans>

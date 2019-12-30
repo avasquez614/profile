@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2014 Crafter Software Corporation.
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ import java.util.UUID;
 
 import org.bson.types.ObjectId;
 import org.craftercms.commons.crypto.CryptoUtils;
+import org.craftercms.commons.entitlements.validator.EntitlementValidator;
 import org.craftercms.commons.security.exception.ActionDeniedException;
 import org.craftercms.commons.security.permissions.PermissionEvaluator;
 import org.craftercms.profile.api.AccessToken;
@@ -136,6 +137,8 @@ public class ProfileServiceImplTest {
     private AuthenticationService authenticationService;
     @Mock
     private VerificationService verificationService;
+    @Mock
+    private EntitlementValidator entitlementValidator;
 
     @Before
     public void setUp() throws Exception {
@@ -251,6 +254,7 @@ public class ProfileServiceImplTest {
         profileService.setResetPwdEmailFromAddress(RESET_PASSWORD_FROM_ADDRESS);
         profileService.setResetPwdEmailSubject(RESET_PASSWORD_SUBJECT);
         profileService.setResetPwdEmailTemplateName(RESET_PASSWORD_TEMPLATE_NAME);
+        profileService.setEntitlementValidator(entitlementValidator);
     }
 
     @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2014 Crafter Software Corporation.
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,6 +94,11 @@ public class ExceptionHandlers extends ResponseEntityExceptionHandler {
     @ExceptionHandler(NoSuchProfileException.class)
     public ResponseEntity<Object> handleNoSuchProfileException(NoSuchProfileException e, WebRequest request) {
         return handleExceptionInternal(e, HttpStatus.NOT_FOUND, ErrorCode.NO_SUCH_PROFILE, request);
+    }
+
+    @ExceptionHandler(NoSuchTicketException.Expired.class)
+    public ResponseEntity<Object> handleNoSuchTicketException(NoSuchTicketException.Expired e, WebRequest request) {
+        return handleExceptionInternal(e, HttpStatus.BAD_REQUEST, ErrorCode.NO_SUCH_TICKET, request);
     }
 
     @ExceptionHandler(NoSuchTicketException.class)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2014 Crafter Software Corporation.
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -301,7 +301,7 @@ public class ProfileServiceRestClient extends AbstractProfileRestClientBase impl
         try {
             return doGetForObject(url, Profile.class);
         } catch (ProfileRestServiceException e) {
-            if (e.getStatus() == HttpStatus.NOT_FOUND) {
+            if(e.getStatus() == HttpStatus.NOT_FOUND) {
                 return null;
             } else {
                 throw e;

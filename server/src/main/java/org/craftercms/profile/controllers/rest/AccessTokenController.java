@@ -1,9 +1,21 @@
-package org.craftercms.profile.controllers.rest;
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiImplicitParam;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
+package org.craftercms.profile.controllers.rest;
 
 import java.util.Collections;
 import java.util.List;
@@ -31,7 +43,6 @@ import static org.craftercms.profile.api.ProfileConstants.*;
  */
 @Controller
 @RequestMapping(BASE_URL_ACCESS_TOKEN)
-@Api(value = "access_token", basePath = BASE_URL_ACCESS_TOKEN, description = "Access token operations")
 public class AccessTokenController {
 
     protected AccessTokenService accessTokenService;
@@ -41,23 +52,15 @@ public class AccessTokenController {
         this.accessTokenService = accessTokenService;
     }
 
-    @ApiOperation("Creates a new access token")
-    @ApiImplicitParam(name = "accessTokenId", required = true, dataType = "string", paramType = "query",
-                      value = "The ID of the application access token")
     @RequestMapping(value = URL_ACCESS_TOKEN_CREATE, method = RequestMethod.POST)
     @ResponseBody
-    public AccessToken createToken(@ApiParam("The token to create")
-                                   @RequestBody AccessToken token) throws ProfileException {
+    public AccessToken createToken(@RequestBody AccessToken token) throws ProfileException {
         return accessTokenService.createToken(token);
     }
 
-    @ApiOperation("Returns the token for the given ID")
-    @ApiImplicitParam(name = "accessTokenId", required = true, dataType = "string", paramType = "query",
-                      value = "The ID of the application access token")
     @RequestMapping(value = URL_ACCESS_TOKEN_GET, method = RequestMethod.GET)
     @ResponseBody
-    public AccessToken getToken(
-        @ApiParam("The ID of the token") @PathVariable(PATH_VAR_ID) String id) throws ProfileException {
+    public AccessToken getToken(@PathVariable(PATH_VAR_ID) String id) throws ProfileException {
         AccessToken token = accessTokenService.getToken(id);
         if (token != null) {
             return token;
@@ -66,9 +69,6 @@ public class AccessTokenController {
         }
     }
 
-    @ApiOperation("Returns all the access tokens in the DB")
-    @ApiImplicitParam(name = "accessTokenId", required = true, dataType = "string", paramType = "query",
-                      value = "The ID of the application access token")
     @RequestMapping(value = URL_ACCESS_TOKEN_GET_ALL, method = RequestMethod.GET)
     @ResponseBody
     public List<AccessToken> getAllTokens() throws ProfileException {
@@ -80,13 +80,9 @@ public class AccessTokenController {
         }
     }
 
-    @ApiOperation("Returns all the access tokens in the DB")
-    @ApiImplicitParam(name = "accessTokenId", required = true, dataType = "string", paramType = "query",
-                      value = "The ID of the application access token")
     @RequestMapping(value = URL_ACCESS_TOKEN_DELETE, method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
-    public void deleteToken(
-        @ApiParam("The ID of the token") @PathVariable(PATH_VAR_ID) String id) throws ProfileException {
+    public void deleteToken(@PathVariable(PATH_VAR_ID) String id) throws ProfileException {
         accessTokenService.deleteToken(id);
     }
 

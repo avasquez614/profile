@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2014 Crafter Software Corporation.
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,14 @@ public class NoSuchTicketException extends I10nProfileException {
 
     public NoSuchTicketException(String ticketId) {
         super(KEY, ticketId);
+    }
+
+    public static class Expired extends NoSuchTicketException {
+
+        public Expired(String ticketId) {
+            super(ticketId);
+        }
+
     }
 
 }

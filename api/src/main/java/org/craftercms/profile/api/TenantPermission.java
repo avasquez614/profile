@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2014 Crafter Software Corporation.
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,14 +16,14 @@
  */
 package org.craftercms.profile.api;
 
-import org.craftercms.commons.security.permissions.PermissionBase;
+import org.craftercms.commons.security.permissions.DefaultPermission;
 
 /**
  * {@link org.craftercms.commons.security.permissions.Permission} specific for tenants.
  *
  * @author avasquez
  */
-public class TenantPermission extends PermissionBase {
+public class TenantPermission extends DefaultPermission {
 
     public static final String ANY_TENANT = "*";
 

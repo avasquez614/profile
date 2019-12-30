@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2014 Crafter Software Corporation.
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@ import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.craftercms.commons.collections.IterableUtils;
+import org.craftercms.commons.entitlements.model.EntitlementType;
+import org.craftercms.commons.entitlements.validator.EntitlementValidator;
 import org.craftercms.commons.i10n.I10nLogger;
 import org.craftercms.commons.logging.Logged;
 import org.craftercms.commons.mongo.DuplicateKeyException;
@@ -76,11 +78,15 @@ public class TenantServiceImpl implements TenantService {
                                                                                     ".removeAttributeFromAllError";
     public static final String ERROR_KEY_ADD_DEFAULT_VALUE_ERROR = "profile.attribute.addDefaultValueError";
 
+    public static final String ERROR_KEY_ENTITLEMENT_ERROR = "profile.license.entitlementError";
+
     protected PermissionEvaluator<AccessToken, String> tenantPermissionEvaluator;
     protected PermissionEvaluator<AccessToken, AttributeDefinition> attributePermissionEvaluator;
     protected TenantRepository tenantRepository;
     protected ProfileRepository profileRepository;
     protected ProfileService profileService;
+
+    protected EntitlementValidator entitlementValidator;
 
     @Required
     public void setTenantPermissionEvaluator(PermissionEvaluator<AccessToken, String> tenantPermissionEvaluator) {
@@ -108,9 +114,20 @@ public class TenantServiceImpl implements TenantService {
         this.profileService = profileService;
     }
 
+    @Required
+    public void setEntitlementValidator(final EntitlementValidator entitlementValidator) {
+        this.entitlementValidator = entitlementValidator;
+    }
+
     @Override
     public Tenant createTenant(Tenant tenant) throws ProfileException {
         checkIfTenantActionIsAllowed(null, TenantAction.CREATE_TENANT);
+
+        try {
+            entitlementValidator.validateEntitlement(EntitlementType.SITE, 1);
+        } catch (Exception e) {
+            throw new I10nProfileException(ERROR_KEY_ENTITLEMENT_ERROR, e);
+        }
 
         // Make sure ID is null, we want it auto-generated
         tenant.setId(null);
